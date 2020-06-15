@@ -51,7 +51,36 @@ power_LSB = 25 * current_LSB</br>
 power_LSB = 25 * 0.0001 = 0.0025 -> 2.5mW/bit</br>
 
 # Usage information
-<to be done>
- 
-# Example code
+In order to be able to set calibration and configuration to custom values, some work needs to be done by the user</br>
+In the library, a method "set_calibration_custom" exists, which expects the calibration register value and the </br>
+configuration register value as arguments. If no arguments are given, it uses default values.</br>
+For easier calculation, a Google spreadsheet is available at [this Google spreadsheet](https://docs.google.com/spreadsheets/d/18fAr1kHwlnhD122Fn4QPPonJV-h0LQRIFyc0agLmmvI/edit?usp=sharing "INA226 Google Spreadsheet")
 
+## Default values
+`cal_value = 512`</br>
+`current_lsb = 0.0001`</br>
+`power_lsb = 0.0025`</br>
+`Rshunt = 0.1`</br>
+`Averaging mode = 512 samples`</br>
+`Bus voltage conversion time = 588us`</br>
+`Shunt voltage conversion time = 588us`</br>
+`Operating mode = Shunt and Bus Voltage, continuous`</br>
+
+# Example code
+This code was written to test (i.e. just see if it works without errors) the library on an ESP01S module with 1MB flash
+
+```python
+import ina226
+from time import sleep
+from machine import Pin, I2C
+# i2c
+i2c = I2C(scl=Pin(2), sda=Pin(0))
+# ina226
+ina = ina226.INA226(i2c, 0x40)
+# default configuration and calibration value
+ina.set_calibration()
+print(ina.bus_voltage)
+print(ina.shunt_voltage)
+print(ina.current)
+print(ina.power)
+```
