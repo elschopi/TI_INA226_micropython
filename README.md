@@ -2,11 +2,17 @@
 
 This library provides support for the TI INA226 power measurement IC with micropython firmware.
 Datasheet and other information on the IC: https://www.ti.com/product/INA226
+#  
+This library is derived from https://github.com/robert-hh/INA219 </br>
+with the friendly support of the community at https://forum.micropython.org/
+## Motivation
+I needed a micropython library for the INA226 devices for a small power meter project I was working on. I did find libraries for the 
+Raspberry Pi, but none for micropython. Thus, I had to modify an existing library for the INA219 devices.
 
 # Basics
 
 To use the device, it has to be configured at startup. In it's default configuration, the calibration register is not set and 
-thus the current and power cannot be directly read out.
+thus the current and power cannot be directly read out.</br>
 By default, this library configures the device to a maximum current of 3.6 A and 36V bus voltage. Resistance of the shunt is assumed as 0.1 Ohm.
 
 # Calculations
