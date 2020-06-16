@@ -30,6 +30,12 @@ Default configuration register is as follows:
 |Name  	|RST	|N/A	|N/A	|N/A	|AVG2	|AVG1	|AVG0	|VBUSCT2|VBUSCT1|VBUSCT0|VSHCT2	|VSHCT1	|VSHCT0	|MODE3	|MODE2	|MODE1	|
 |Value 	|	0	|	1	|	0	|	0	|	0	|	0	|	0	|	1	|	0	|	0	|	1	|	0	|	0	|	1	|	1	|	1	|
 
+Default configuration according to the datasheet:
+- Averaging mode: 1 sample
+- Bus voltage conversion time: 1.1ms
+- Shunt voltage conversion time: 1.1ms
+- Operating mode: Shunt and Bus voltage, continuous
+
 Possible values for the configuration registers can be found in the library.
 
 ## Calculating the current_LSB
