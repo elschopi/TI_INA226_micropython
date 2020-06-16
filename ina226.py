@@ -27,21 +27,6 @@ CircuitPython driver for the INA219 current sensor.
 
 * Author(s): Dean Miller
 
-Implementation Notes
---------------------
-
-**Hardware:**
-
-* `Adafruit INA219 High Side DC Current Sensor Breakout
-   <https://www.adafruit.com/product/904>`_
-* `Adafruit INA219 FeatherWing <https://www.adafruit.com/product/3650>`_
-
-**Software and Dependencies:**
-
-* Adafruit CircuitPython firmware (2.2.0+) for the ESP8622 and M0-based boards:
-  https://github.com/adafruit/circuitpython/releases
-* Adafruit's Bus Device library:
-  https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 # taken from https://github.com/robert-hh/INA219 , modified for the INA226 devices by
 # Christian Becker
