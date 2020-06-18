@@ -1,6 +1,7 @@
 # The MIT License (MIT)
 #
 # Copyright (c) 2017 Dean Miller for Adafruit Industries
+# Copyright (c) 2020 Christian Becker
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +21,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ina219`
+`ina226`
 ====================================================
 
-CircuitPython driver for the INA219 current sensor.
+micropython driver for the INA226 current sensor.
 
-* Author(s): Dean Miller
+* Author(s): Christian Becker
 
 """
 # taken from https://github.com/robert-hh/INA219 , modified for the INA226 devices by
@@ -36,7 +37,7 @@ from micropython import const
 # from adafruit_bus_device.i2c_device import I2CDevice
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_INA219.git"
+__repo__ = "https://github.com/elschopi/TI_INA226_micropython.git"
 
 # Bits
 # pylint: disable=bad-whitespace
