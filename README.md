@@ -60,7 +60,7 @@ power_LSB = 25 * 0.0001 = 0.0025 -> 2.5mW/bit</br>
 In order to be able to set calibration and configuration to custom values, some work needs to be done by the user</br>
 In the library, a method "set_calibration_custom" exists, which expects the calibration register value and the </br>
 configuration register value as arguments. If no arguments are given, it uses default values.</br>
-For easier calculation, a Google spreadsheet is available at [this Google spreadsheet](https://docs.google.com/spreadsheets/d/1k0MbBsduRgoQ8huFrBwaHQnYhl97LjkpEw-sIXykTEg/edit?usp=sharing "INA226 Google Spreadsheet")
+For easier calculation, a Google spreadsheet is available at [this Google spreadsheet](https://docs.google.com/spreadsheets/d/1k0MbBsduRgoQ8huFrBwaHQnYhl97LjkpEw-sIXykTEg/edit?usp=sharing "INA226 Google Spreadsheet")</br>
 With ina_calc_config.py I've provided a crude, menu guided configuration calculator for Python3. It's a bit rough around the edges but works.
 
 ## Default values
