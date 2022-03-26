@@ -199,7 +199,7 @@ class INA226:
 # cal_value = 512
 #
 #
-   def set_calibration(self):  # pylint: disable=invalid-name
+    def set_calibration(self):  # pylint: disable=invalid-name
         """Configures to INA226 to be able to measure up to 36V and 2A
             of current. Counter overflow occurs at 3.2A.
            ..note :: These calculations assume a 0.1 shunt ohm resistor"""
