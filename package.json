@@ -1,0 +1,8 @@
+{
+  "urls": [
+    ["ina226.py", "github:elschopi/TI_INA226_micropython/ina226.py"],
+    ["ina_calc_conf.py", "github:elschopi/TI_INA226_micropython/ina_calc_conf.py"]
+  ],
+  "version": "1.0.0",
+  "deps": []
+}
