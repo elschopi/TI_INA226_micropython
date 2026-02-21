@@ -1,93 +1,114 @@
 # TI_INA226_micropython
 
-This library provides support for the TI INA226 power measurement IC with micropython firmware.
-Datasheet and other information on the IC: https://www.ti.com/product/INA226
-#  
-This library is derived from https://github.com/robert-hh/INA219 </br>
-with the friendly support of the community at https://forum.micropython.org/
-## Motivation
-I needed a micropython library for the INA226 devices for a small power meter project I was working on. I did find libraries for the 
-Raspberry Pi, but none for micropython. Thus, I had to modify an existing library for the INA219 devices.
+MicroPython driver for the TI INA226 current / power monitor IC.
 
-# Basics
+Datasheet and IC info: https://www.ti.com/product/INA226
 
-To use the device, it has to be configured at startup. In it's default configuration, the calibration register is not set and 
-thus the current and power cannot be directly read out.</br>
-By default, this library configures the device to a maximum current of 3.6 A and 36V bus voltage. Resistance of the shunt is assumed as 0.1 Ohm.
+This library was originally derived from https://github.com/robert-hh/INA219 and adapted for INA226.
 
-# Calculations
+## Key points (INA226 specifics)
 
-The following values need to be calculated in order to set the configuration and calibration register values:
-- calibration register value
-- power LSB value
-- current LSB value
-- configuration register value
-Configuration register value is derived from the values of the corresponding bits.
+- **Shunt voltage LSB is 2.5 µV/bit** (signed register).
+- **Bus voltage LSB is 1.25 mV/bit** (unsigned register).
+- To read **current** and **power**, you must set the **calibration register**. Without calibration, the chip’s CURRENT/POWER registers are not valid.
 
-Default configuration register is as follows:
-|BitNr 	|	D15	|	D14	|	D13	|	D12	|	D11	|	D10	|	D09	|	D08	|	D07	|	D06	|	D05	|	D04	|	D03	|	D02	|	D01	|	D00	|
-|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|---	|
-|Name  	|RST	|N/A	|N/A	|N/A	|AVG2	|AVG1	|AVG0	|VBUSCT2|VBUSCT1|VBUSCT0|VSHCT2	|VSHCT1	|VSHCT0	|MODE3	|MODE2	|MODE1	|
-|Value 	|	0	|	1	|	0	|	0	|	0	|	0	|	0	|	1	|	0	|	0	|	1	|	0	|	0	|	1	|	1	|	1	|
+## Driver overview
 
-Default configuration according to the datasheet:
-- Averaging mode: 1 sample
-- Bus voltage conversion time: 1.1ms
-- Shunt voltage conversion time: 1.1ms
-- Operating mode: Shunt and Bus voltage, continuous
+The driver provides:
 
-Possible values for the configuration registers can be found in the library.
+- `configure(...)` for conversion timing / averaging / operating mode
+- `calibrate(...)` for calibration register + current/power scaling
+- Properties:
+  - `bus_voltage` (V)
+  - `shunt_voltage` (V)
+  - `current` (A) and `current_mA` (mA)
+  - `power` (W) and `power_mW` (mW)
 
-## Calculating the current_LSB
-As example, a maximum expected current of 3.6A is assumed.
+## Installation / files
 
-current_LSB = max_expected_I / (2^15)</br>
-current_LSB = 3.6 A / (2^15)</br>
-current_LSB = 0.0001098632813 = 0.00011 = 0.0001 -> 100uA/bit</br>
+- `ina226.py` — the driver
+- `ina_calc_conf.py` — interactive helper to build a config register value and print a ready-to-paste `configure()` call
 
-## Calculating the calibration register
+## Configuration register
 
-Cal_value = 0.00512 / (current_LSB * Rshunt)</br>
-Cal_value = 0.00512 / (0.0001 * 0.1)</br>
-Cal_value = 512</br>
+INA226 configuration register layout (high-level):
 
-## Calculating the power_LSB
+```
+CONFIG = CONST_BITS + AVG + VBUSCT + VSHCT + MODE
+```
 
-power_LSB = 25 * current_LSB</br>
-power_LSB = 25 * 0.0001 = 0.0025 -> 2.5mW/bit</br>
+Where:
+- `AVG` controls averaging (1..1024 samples)
+- `VBUSCT` is bus voltage conversion time
+- `VSHCT` is shunt voltage conversion time
+- `MODE` selects triggered/continuous shunt/bus conversions
 
-# Usage information
-In order to be able to set calibration and configuration to custom values, some work needs to be done by the user</br>
-In the library, a method "set_calibration_custom" exists, which expects the calibration register value and the </br>
-configuration register value as arguments. If no arguments are given, it uses default values.</br>
-For easier calculation, a Google spreadsheet is available at [this Google spreadsheet](https://docs.google.com/spreadsheets/d/1k0MbBsduRgoQ8huFrBwaHQnYhl97LjkpEw-sIXykTEg/edit?usp=sharing "INA226 Google Spreadsheet")</br>
-With ina_calc_config.py I've provided a crude, menu guided configuration calculator for Python3. It's a bit rough around the edges but works.
+The driver exposes constants like:
+- `INA226.AVG_512`
+- `INA226.VBUSCT_588US`
+- `INA226.VSHCT_588US`
+- `INA226.MODE_SHUNT_BUS_CONTINUOUS`
 
-## Default values
-`cal_value = 512`</br>
-`current_lsb = 0.0001`</br>
-`power_lsb = 0.0025`</br>
-`Rshunt = 0.1`</br>
-`Averaging mode = 512 samples`</br>
-`Bus voltage conversion time = 588us`</br>
-`Shunt voltage conversion time = 588us`</br>
-`Operating mode = Shunt and Bus Voltage, continuous`</br>
+## Calibration (auto-calculation)
 
-# Example code
-This code was written to test (i.e. just see if it works without errors) the library on an ESP01S module with 1MB flash
+The driver can compute calibration values automatically.
+
+You must provide:
+- `r_shunt_ohms` (your shunt resistor value in ohms)
+- and either:
+  - `max_expected_amps` (recommended)
+  - or `current_lsb_a` (advanced; choose a “nice” LSB)
+
+### How it works (summary)
+
+- Choose `current_lsb_a` (amps/bit). Default:
+  - `current_lsb_a = max_expected_amps / 32768`
+- Compute calibration register:
+  - `cal_value = 0.00512 / (r_shunt_ohms * current_lsb_a)`
+- Power LSB is fixed relationship:
+  - `power_lsb_w = 25 * current_lsb_a`
+
+## Example (ESP / generic MicroPython)
 
 ```python
 import ina226
-from time import sleep
 from machine import Pin, I2C
-# i2c
+
+# Adjust pins for your board
 i2c = I2C(scl=Pin(2), sda=Pin(0))
-# ina226
-ina = ina226.INA226(i2c, 0x40)
-# default configuration and calibration value
-ina.set_calibration()
-print(ina.bus_voltage)
-print(ina.shunt_voltage)
-print(ina.current)
-print(ina.power)
+
+ina = ina226.INA226(i2c, addr=0x40)
+
+# Optional: configure conversion behavior (defaults are already reasonable)
+ina.configure(
+    avg=ina226.INA226.AVG_512,
+    vbusct=ina226.INA226.VBUSCT_588US,
+    vshct=ina226.INA226.VSHCT_588US,
+    mode=ina226.INA226.MODE_SHUNT_BUS_CONTINUOUS,
+)
+
+# Auto-calibrate (recommended)
+ina.calibrate(r_shunt_ohms=0.1, max_expected_amps=3.6)
+
+print("Bus voltage:", ina.bus_voltage, "V")
+print("Shunt voltage:", ina.shunt_voltage, "V")
+print("Current:", ina.current, "A")
+print("Power:", ina.power, "W")
+
+# Or convenience in mA / mW
+print("Current:", ina.current_mA, "mA")
+print("Power:", ina.power_mW, "mW")
 ```
+
+### Using a “nice” rounded current LSB (optional)
+
+If you want a specific current resolution (example: 100 µA/bit):
+
+```python
+ina.calibrate(r_shunt_ohms=0.1, max_expected_amps=3.6, current_lsb_a=0.0001)
+```
+
+## Troubleshooting
+
+- If `current` / `power` raises “not calibrated”: call `calibrate(...)`.
+- After brown-outs / resets the INA226 may clear the calibration register; the driver automatically re-applies it when reading current/power.
